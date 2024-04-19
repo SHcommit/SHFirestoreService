@@ -12,6 +12,8 @@ import FirebaseFirestore
 import FirebaseFirestoreCombineSwift
 
 public final class FirestoreService: FirestoreServiceProtocol {
+  public init() {}
+  
   /// Reqeust responseDTOs from endpoint's specific CollectionReference
   ///   when endpoint's **FirestoreMethod** is get type.
   public func request<D, E>(
