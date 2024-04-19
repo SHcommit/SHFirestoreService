@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		154CA5ED2BD2BBB40066B444 /* SHFirestoreService in Frameworks */ = {isa = PBXBuildFile; productRef = 154CA5EC2BD2BBB40066B444 /* SHFirestoreService */; };
+		154CA5F02BD2BCD60066B444 /* UserEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 154CA5EF2BD2BCD60066B444 /* UserEntity.swift */; };
+		154CA5F22BD2C0EF0066B444 /* LoggedInUserUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 154CA5F12BD2C0EF0066B444 /* LoggedInUserUseCase.swift */; };
+		154CA5F42BD2C10F0066B444 /* FirestoreLoggedInUserUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 154CA5F32BD2C10F0066B444 /* FirestoreLoggedInUserUseCase.swift */; };
 		155EDB9F2BD287FF00EBF569 /* FirestoreRequestType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155EDB9E2BD287FF00EBF569 /* FirestoreRequestType.swift */; };
 		155EDBA12BD2897500EBF569 /* FirestoreEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155EDBA02BD2897500EBF569 /* FirestoreEndpoint.swift */; };
 		155EDBA42BD28CF400EBF569 /* FirestoreUserEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155EDBA32BD28CF400EBF569 /* FirestoreUserEndpoint.swift */; };
@@ -21,6 +24,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		154CA5EF2BD2BCD60066B444 /* UserEntity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserEntity.swift; sourceTree = "<group>"; };
+		154CA5F12BD2C0EF0066B444 /* LoggedInUserUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoggedInUserUseCase.swift; sourceTree = "<group>"; };
+		154CA5F32BD2C10F0066B444 /* FirestoreLoggedInUserUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreLoggedInUserUseCase.swift; sourceTree = "<group>"; };
 		155EDB9E2BD287FF00EBF569 /* FirestoreRequestType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreRequestType.swift; sourceTree = "<group>"; };
 		155EDBA02BD2897500EBF569 /* FirestoreEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreEndpoint.swift; sourceTree = "<group>"; };
 		155EDBA32BD28CF400EBF569 /* FirestoreUserEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreUserEndpoint.swift; sourceTree = "<group>"; };
@@ -52,6 +58,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		154CA5EE2BD2BCCB0066B444 /* Domain */ = {
+			isa = PBXGroup;
+			children = (
+				155EDBA72BD2926A00EBF569 /* UserRepository.swift */,
+				154CA5EF2BD2BCD60066B444 /* UserEntity.swift */,
+				154CA5F12BD2C0EF0066B444 /* LoggedInUserUseCase.swift */,
+				154CA5F32BD2C10F0066B444 /* FirestoreLoggedInUserUseCase.swift */,
+			);
+			name = Domain;
+			sourceTree = "<group>";
+		};
 		155EDB9D2BD287E600EBF569 /* Firestore */ = {
 			isa = PBXGroup;
 			children = (
@@ -66,7 +83,6 @@
 			children = (
 				155EDBA32BD28CF400EBF569 /* FirestoreUserEndpoint.swift */,
 				155EDBA52BD2926200EBF569 /* FirestoreUserRepository.swift */,
-				155EDBA72BD2926A00EBF569 /* UserRepository.swift */,
 			);
 			name = Data;
 			sourceTree = "<group>";
@@ -100,6 +116,7 @@
 		607FACD21AFB9204008FA782 /* Example for SHFirestoreService */ = {
 			isa = PBXGroup;
 			children = (
+				154CA5EE2BD2BCCB0066B444 /* Domain */,
 				155EDBA22BD28CE300EBF569 /* Data */,
 				155EDB9D2BD287E600EBF569 /* Firestore */,
 				159553252BD26C50000074C3 /* Feature */,
@@ -230,10 +247,13 @@
 				155EDBA62BD2926200EBF569 /* FirestoreUserRepository.swift in Sources */,
 				155EDB9F2BD287FF00EBF569 /* FirestoreRequestType.swift in Sources */,
 				607FACD81AFB9204008FA782 /* ViewController.swift in Sources */,
+				154CA5F42BD2C10F0066B444 /* FirestoreLoggedInUserUseCase.swift in Sources */,
 				155EDBA82BD2926A00EBF569 /* UserRepository.swift in Sources */,
 				155EDBA42BD28CF400EBF569 /* FirestoreUserEndpoint.swift in Sources */,
+				154CA5F22BD2C0EF0066B444 /* LoggedInUserUseCase.swift in Sources */,
 				155EDBA12BD2897500EBF569 /* FirestoreEndpoint.swift in Sources */,
 				607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */,
+				154CA5F02BD2BCD60066B444 /* UserEntity.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -10,6 +10,7 @@ import Foundation
 import FirebaseFirestore
 import SHFirestoreService
 
+/// Here, you can easily specify and manage the document path or collection path of a specific case by using a specific case and associatedValue.
 @frozen enum FirestoreRequestType: FirestoreAccessible {
   case users(UsersRequest)
   

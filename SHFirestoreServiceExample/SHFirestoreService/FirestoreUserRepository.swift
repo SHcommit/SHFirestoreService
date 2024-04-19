@@ -18,8 +18,8 @@ final class FirestoreUserRepository: UserRepository {
     self.service = service
   }
   
-  func saveOwnerInfo(name: String, uID: String) -> AnyPublisher<Void, any Error> {
-    let requestDTO = OwnerInfoRequestDTO(name: name)
+  func saveOwnerInfo(user: UserEntity, uID: String) -> AnyPublisher<Void, any Error> {
+    let requestDTO = OwnerInfoRequestDTO(name: user.name)
     let endpoint = Endpoint.saveOwnerInfo(with: requestDTO, userUID: uID)
     return service.request(endpoint: endpoint)
       .eraseToAnyPublisher()
