@@ -1,0 +1,9 @@
+use_frameworks!
+
+platform :ios, '13.0'
+
+target 'SHFirestoreService_Example' do
+  pod 'SHFirestoreService', :path => '../'
+
+  #pod 'Firebase/FirebaseCombineSwift'
+end
