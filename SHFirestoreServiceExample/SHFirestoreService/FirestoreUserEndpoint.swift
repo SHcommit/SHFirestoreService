@@ -21,7 +21,7 @@ struct FirestoreUserEndpoint {
     userUID: String
   ) -> FirestoreEndpoint<VoidResponseDTO> {
     return FirestoreEndpoint(
-      parameters: requestDTO,
+      requestDTO: requestDTO,
       method: .save,
       requestType: .users(.saveOwnerInfo(userUID)))
   }
