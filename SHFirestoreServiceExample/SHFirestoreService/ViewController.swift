@@ -25,6 +25,8 @@ class ViewController: UIViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     
+    /// In the example, roles between layers are not thoroughly separated. Thank you for watching the flow of action.
+    
     /// The situation now is, let's say we have a Users document in the root collection in Firestore
     ///   and there is a name field inside it. And the logic is to save the user's info through the document ID.
     ///
