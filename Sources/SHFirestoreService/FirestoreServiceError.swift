@@ -14,6 +14,7 @@ import Foundation
   case methodNotSupported
   case invalidFirestoreMethodRequest
   case invalidRequestDTO
+  case wrappedfirestoreError(Error)
   
   public var errorDescription: String? {
     switch self {
@@ -27,6 +28,8 @@ import Foundation
       return "The request method to Firestore is invalid."
     case .invalidRequestDTO:
       return "The requestDTO object is invalid."
+    case .wrappedfirestoreError(let error):
+      return "Firestore Error: \(error.localizedDescription)"
     }
   }
 }

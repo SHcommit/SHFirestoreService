@@ -18,7 +18,7 @@ public final class FirestoreService: FirestoreServiceProtocol {
   ///   when endpoint's **FirestoreMethod** is get type.
   public func request<D, E>(
     endpoint: E
-  ) -> AnyPublisher<[D], any Error>
+  ) -> AnyPublisher<[D], FirestoreServiceError>
   where D == E.ResponseDTO, E : FirestoreEndopintable {
     guard let collectionRef = endpoint.reference as? CollectionReference else {
       return Fail(error: FirestoreServiceError.collectionNotFound).eraseToAnyPublisher()
@@ -29,7 +29,9 @@ public final class FirestoreService: FirestoreServiceProtocol {
           try snapshots.documents.map { snapshot in
             try snapshot.data(as: D.self)
           }
-        }.eraseToAnyPublisher()
+        }
+        .convertFirestoreServiceError()
+        .eraseToAnyPublisher()
     }
     return Fail(error: FirestoreServiceError.docuemntNotfound).eraseToAnyPublisher()
   }
@@ -38,7 +40,7 @@ public final class FirestoreService: FirestoreServiceProtocol {
   ///   when endpoint's **FirestoreMethod** is get type.
   public func request<D, E>(
     endpoint: E
-  ) -> AnyPublisher<D, any Error>
+  ) -> AnyPublisher<D, FirestoreServiceError>
   where D == E.ResponseDTO, E : FirestoreEndopintable {
     guard let documentRef = endpoint.reference as? DocumentReference else {
       return Fail(error: FirestoreServiceError.docuemntNotfound).eraseToAnyPublisher()
@@ -47,7 +49,9 @@ public final class FirestoreService: FirestoreServiceProtocol {
       return documentRef.getDocument()
         .tryMap { snapshot in
           try snapshot.data(as: D.self)
-        }.eraseToAnyPublisher()
+        }
+        .convertFirestoreServiceError()
+        .eraseToAnyPublisher()
     }
     return Fail(error: FirestoreServiceError.docuemntNotfound).eraseToAnyPublisher()
 
@@ -57,20 +61,25 @@ public final class FirestoreService: FirestoreServiceProtocol {
   ///   when endopint's **FirestoreMethod** is one of save, delete or update
   public func request(
     endpoint: any FirestoreEndopintable
-  ) -> AnyPublisher<Void, any Error> {
+  ) -> AnyPublisher<Void, FirestoreServiceError> {
     guard let documentRef = endpoint.reference as? DocumentReference else {
       return Fail(error: FirestoreServiceError.docuemntNotfound).eraseToAnyPublisher()
     }
     
     if case .delete = endpoint.method {
-      return documentRef.delete().eraseToAnyPublisher()
+      return documentRef.delete()
+        .convertFirestoreServiceError()
+        .eraseToAnyPublisher()
     }
     
     if [.save, .update].contains(endpoint.method) {
       guard let requestDTO = endpoint.requestDTO else {
         return Fail(error: FirestoreServiceError.invalidRequestDTO).eraseToAnyPublisher()
       }
-      return documentRef.setData(from: requestDTO).eraseToAnyPublisher()
+      return documentRef
+        .setData(from: requestDTO)
+        .convertFirestoreServiceError()
+        .eraseToAnyPublisher()
     }
     return Fail(error: FirestoreServiceError.invalidFirestoreMethodRequest).eraseToAnyPublisher()
   }
@@ -79,7 +88,7 @@ public final class FirestoreService: FirestoreServiceProtocol {
   public func query<D, E>(
     endpoint: E,
     makeQuery: FirestoreQueryHandler
-  ) -> AnyPublisher<[D], any Error>
+  ) -> AnyPublisher<[D], FirestoreServiceError>
   where D == E.ResponseDTO, E : FirestoreEndopintable {
     guard case .query = endpoint.method else {
       return Fail(error: FirestoreServiceError.invalidFirestoreMethodRequest).eraseToAnyPublisher()
@@ -93,7 +102,9 @@ public final class FirestoreService: FirestoreServiceProtocol {
         try querySnapshot.documents.map { snapshot in
           try snapshot.data(as: D.self)
         }
-      }.eraseToAnyPublisher()
+      }
+      .convertFirestoreServiceError()
+      .eraseToAnyPublisher()
 
   }
 }

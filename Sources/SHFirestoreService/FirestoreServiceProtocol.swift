@@ -14,22 +14,22 @@ public protocol FirestoreServiceProtocol {
   typealias FirestoreQueryHandler = (FirestoreReference) -> Query
   
   // MARK: - Helpers
-  func request<D, E>(endpoint: E) -> AnyPublisher<[D], Error>
+  func request<D, E>(endpoint: E) -> AnyPublisher<[D], FirestoreServiceError>
   where D: Decodable,
         E: FirestoreEndopintable,
         D == E.ResponseDTO
   
-  func request<D, E>(endpoint: E) -> AnyPublisher<D, Error>
+  func request<D, E>(endpoint: E) -> AnyPublisher<D, FirestoreServiceError>
   where D: Decodable,
         E: FirestoreEndopintable,
         D == E.ResponseDTO
   
-  func request(endpoint: any FirestoreEndopintable) -> AnyPublisher<Void, Error>
+  func request(endpoint: any FirestoreEndopintable) -> AnyPublisher<Void, FirestoreServiceError>
   
   func query<D, E>(
     endpoint: E,
     makeQuery: FirestoreQueryHandler
-  ) -> AnyPublisher<[D], Error>
+  ) -> AnyPublisher<[D], FirestoreServiceError>
   where D: Decodable,
         E: FirestoreEndopintable,
         D == E.ResponseDTO
