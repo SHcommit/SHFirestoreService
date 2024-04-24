@@ -10,6 +10,10 @@ import Combine
 import FirebaseFirestore
 
 public protocol FirestoreServiceProtocol {
+  // MARK: - Constants
+  typealias FirestoreQueryHandler = (FirestoreReference) -> Query
+  
+  // MARK: - Helpers
   func request<D, E>(endpoint: E) -> AnyPublisher<[D], Error>
   where D: Decodable,
         E: FirestoreEndopintable,
@@ -24,20 +28,10 @@ public protocol FirestoreServiceProtocol {
   
   func query<D, E>(
     endpoint: E,
-    makeQuery: any FirestoreQueryMakeable,
-    additionalQueries: [any FirestoreQueryAppendable]
+    makeQuery: FirestoreQueryHandler
   ) -> AnyPublisher<[D], Error>
   where D: Decodable,
         E: FirestoreEndopintable,
         D == E.ResponseDTO
-}
-
-// MARK: - Helpers
-public extension FirestoreServiceProtocol {
-  func appendQueries(_ query: Query, queries: [any FirestoreQueryAppendable]) {
-    if !queries.isEmpty {
-      queries.forEach { $0.apply(to: query) }
-    }
-  }
 }
 #endif
