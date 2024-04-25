@@ -15,6 +15,7 @@ import Foundation
   case invalidFirestoreMethodRequest
   case invalidRequestDTO
   case wrappedfirestoreError(Error)
+  case encodingError(Error)
   
   public var errorDescription: String? {
     switch self {
@@ -30,6 +31,8 @@ import Foundation
       return "The requestDTO object is invalid."
     case .wrappedfirestoreError(let error):
       return "Firestore Error: \(error.localizedDescription)"
+    case .encodingError(let error):
+      return error.localizedDescription
     }
   }
 }
