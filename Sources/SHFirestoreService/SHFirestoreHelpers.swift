@@ -16,3 +16,17 @@ internal extension Publisher where Failure == Error {
     }
   }
 }
+
+internal extension Encodable {
+  func toDictionary() throws -> [String: Any] {
+    let data = try JSONEncoder().encode(self)
+    guard let dict = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+      throw Swift.EncodingError.invalidValue(
+        self,
+        Swift.EncodingError.Context.init(
+          codingPath: [],
+          debugDescription: "Failed to convert encoded data to dictionary"))
+    }
+    return dict
+  }
+}
