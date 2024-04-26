@@ -9,8 +9,10 @@ import Foundation
 import FirebaseFirestore
 
 @frozen public enum FirestoreMethod {
+  public typealias DocumentId = String
   case get
-  case save
+  /// If you want to specify the document name directly, just enter the associate value.
+  case save(DocumentId?)
   case delete
   case update
   case query

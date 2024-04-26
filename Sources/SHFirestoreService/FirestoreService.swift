@@ -62,12 +62,21 @@ public final class FirestoreService: FirestoreServiceProtocol {
   public func request(
     endpoint: any FirestoreEndopintable
   ) -> AnyPublisher<Void, FirestoreServiceError> {
-    if case .save = endpoint.method {
+    if case .save(let documentId) = endpoint.method {
       guard let requestDTO = endpoint.requestDTO else {
         return Fail(error: FirestoreServiceError.invalidRequestDTO).eraseToAnyPublisher()
       }
       guard let collectionRef = endpoint.reference as? CollectionReference else {
         return Fail(error: FirestoreServiceError.collectionNotFound).eraseToAnyPublisher()
+      }
+      
+      /// 
+      if let documentId {
+        return collectionRef.document(documentId)
+          .setData(from: requestDTO)
+          .convertFirestoreServiceError()
+          .map { _ -> () in return }
+          .eraseToAnyPublisher()
       }
       
       return collectionRef.addDocument(from: requestDTO)
