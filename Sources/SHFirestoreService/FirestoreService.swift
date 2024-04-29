@@ -139,8 +139,8 @@ public final class FirestoreService: FirestoreServiceProtocol {
 
   }
   
-  /// 처음일떈 makeQuery로! 이때는 limit를 지정해줘야합니다.
-  /// 이후의 페이징부터는 cursor에 마지막으로 받은 document를 주면됩니다
+  /// If this is your first call to pagination, isFirstPagination must be set to true. For future paging, isFirstPagination must be changed to false.
+  /// You must specify a limit before querying in makeQuery. You also need to specify the query you want in this closure.
   public func paginate<D, E>(
     endpoint: E,
     makeQuery: @escaping FirestoreQueryHandler,
