@@ -36,7 +36,7 @@ public final class FirestoreService: FirestoreServiceProtocol {
         .convertFirestoreServiceError()
         .eraseToAnyPublisher()
     }
-    return Fail(error: FirestoreServiceError.docuemntNotfound).eraseToAnyPublisher()
+    return Fail(error: FirestoreServiceError.documentNotFound).eraseToAnyPublisher()
   }
   
   /// Reqeust a responseDTO from endpoint's specific DocuemntReference
@@ -46,7 +46,7 @@ public final class FirestoreService: FirestoreServiceProtocol {
   ) -> AnyPublisher<D, FirestoreServiceError>
   where D == E.ResponseDTO, E : FirestoreEndopintable {
     guard let documentRef = endpoint.reference as? DocumentReference else {
-      return Fail(error: FirestoreServiceError.docuemntNotfound).eraseToAnyPublisher()
+      return Fail(error: FirestoreServiceError.documentNotFound).eraseToAnyPublisher()
     }
     if case .get = endpoint.method {
       return documentRef.getDocument()
@@ -56,7 +56,7 @@ public final class FirestoreService: FirestoreServiceProtocol {
         .convertFirestoreServiceError()
         .eraseToAnyPublisher()
     }
-    return Fail(error: FirestoreServiceError.docuemntNotfound).eraseToAnyPublisher()
+    return Fail(error: FirestoreServiceError.documentNotFound).eraseToAnyPublisher()
 
   }
   
@@ -89,7 +89,7 @@ public final class FirestoreService: FirestoreServiceProtocol {
     }
     
     guard let documentRef = endpoint.reference as? DocumentReference else {
-      return Fail(error: FirestoreServiceError.docuemntNotfound).eraseToAnyPublisher()
+      return Fail(error: FirestoreServiceError.documentNotFound).eraseToAnyPublisher()
     }
     
     if case .delete = endpoint.method {

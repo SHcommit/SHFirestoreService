@@ -10,7 +10,7 @@ import Foundation
 
 @frozen public enum FirestoreServiceError: LocalizedError {
   case collectionNotFound
-  case docuemntNotfound
+  case documentNotFound
   case methodNotSupported
   case invalidFirestoreMethodRequest
   case invalidRequestDTO
@@ -26,7 +26,7 @@ import Foundation
     switch self {
     case .collectionNotFound:
       return "The specified collection was not found."
-    case .docuemntNotfound:
+    case .documentNotFound:
       return "The specified document was not found."
     case .methodNotSupported:
       return "The requested method is not supported."
