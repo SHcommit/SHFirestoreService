@@ -13,6 +13,9 @@ public protocol FirestoreServiceProtocol {
   // MARK: - Constants
   typealias FirestoreQueryHandler = (FirestoreReference) -> Query
   
+  // MARK: - Properties
+  var queryForPagination: Query? { get }
+  
   // MARK: - Helpers
   func request<D, E>(endpoint: E) -> AnyPublisher<[D], FirestoreServiceError>
   where D: Decodable,
@@ -29,6 +32,15 @@ public protocol FirestoreServiceProtocol {
   func query<D, E>(
     endpoint: E,
     makeQuery: FirestoreQueryHandler
+  ) -> AnyPublisher<[D], FirestoreServiceError>
+  where D: Decodable,
+        E: FirestoreEndopintable,
+        D == E.ResponseDTO
+  
+  func paginate<D, E>(
+    endpoint: E,
+    makeQuery: @escaping FirestoreQueryHandler,
+    isFirstPagination: Bool
   ) -> AnyPublisher<[D], FirestoreServiceError>
   where D: Decodable,
         E: FirestoreEndopintable,
