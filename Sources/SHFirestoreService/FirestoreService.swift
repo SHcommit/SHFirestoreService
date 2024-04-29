@@ -139,11 +139,23 @@ public final class FirestoreService: FirestoreServiceProtocol {
 
   }
   
-  /// If this is your first call to pagination, isFirstPagination must be set to true. For future paging, isFirstPagination must be changed to false.
-  /// You must specify a limit before querying in makeQuery. You also need to specify the query you want in this closure.
+  /// Notes:
+  /// 1. If this is your first call to pagination, isFirstPagination must be set to true. And then for future paging except for the first call, isFirstPagination must be changed to false.
+  /// You must specify limits before querying in makeQuery. You also need to specify the query you want in this closure.
+  ///
+  /// Example make query :
+  /// ```
+  /// service.paginate(
+  ///   endpoint: ( specific FirestoreEndopintable instance ),
+  ///   makeQuery: { collectionRef in // This specified collectionReference is your endpoint's reference.
+  ///     return collectionRef
+  ///       .order(by: "population") // This is key point
+  ///       .limit(to: 10) // This is key point
+  ///   }
+  /// ```
   public func paginate<D, E>(
     endpoint: E,
-    makeQuery: @escaping FirestoreQueryHandler,
+    makeQuery: @escaping FirestoreQueryForPaginationHandler,
     isFirstPagination: Bool = true
   ) -> AnyPublisher<[D], FirestoreServiceError>
   where D == E.ResponseDTO, E : FirestoreEndopintable {

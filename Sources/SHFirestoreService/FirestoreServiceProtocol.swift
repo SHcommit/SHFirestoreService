@@ -12,6 +12,7 @@ import FirebaseFirestore
 public protocol FirestoreServiceProtocol {
   // MARK: - Constants
   typealias FirestoreQueryHandler = (FirestoreReference) -> Query
+  typealias FirestoreQueryForPaginationHandler = (CollectionReference) -> Query
   
   // MARK: - Properties
   var queryForPagination: Query? { get }
@@ -39,7 +40,7 @@ public protocol FirestoreServiceProtocol {
   
   func paginate<D, E>(
     endpoint: E,
-    makeQuery: @escaping FirestoreQueryHandler,
+    makeQuery: @escaping FirestoreQueryForPaginationHandler,
     isFirstPagination: Bool
   ) -> AnyPublisher<[D], FirestoreServiceError>
   where D: Decodable,
