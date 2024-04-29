@@ -16,6 +16,7 @@ import Foundation
   case invalidRequestDTO
   case wrappedfirestoreError(Error)
   case encodingError(Error)
+  case decodingError(Error)
   
   /// when paging
   case noMorePage
@@ -36,6 +37,8 @@ import Foundation
     case .wrappedfirestoreError(let error):
       return "Firestore Error: \(error.localizedDescription)"
     case .encodingError(let error):
+      return error.localizedDescription
+    case .decodingError(let error):
       return error.localizedDescription
     case .noMorePage:
       return "No more page"
