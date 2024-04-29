@@ -17,6 +17,10 @@ import Foundation
   case wrappedfirestoreError(Error)
   case encodingError(Error)
   
+  /// when paging
+  case noMorePage
+  case failToRetrievingCollection(Error?)
+  
   public var errorDescription: String? {
     switch self {
     case .collectionNotFound:
@@ -33,6 +37,10 @@ import Foundation
       return "Firestore Error: \(error.localizedDescription)"
     case .encodingError(let error):
       return error.localizedDescription
+    case .noMorePage:
+      return "No more page"
+    case .failToRetrievingCollection(let error):
+      return "Fail to retrieving collection: \(error?.localizedDescription ?? "Unknown error")"
     }
   }
 }
