@@ -12,6 +12,9 @@ import FirebaseFirestore
 import FirebaseFirestoreCombineSwift
 
 public final class FirestoreService: FirestoreServiceProtocol {
+  // MARK: - Properties
+  public var queryForPagination: Query? = nil
+  
   public init() {}
   
   /// Reqeust responseDTOs from endpoint's specific CollectionReference
@@ -134,6 +137,66 @@ public final class FirestoreService: FirestoreServiceProtocol {
       .convertFirestoreServiceError()
       .eraseToAnyPublisher()
 
+  }
+  
+  /// 처음일떈 makeQuery로! 이때는 limit를 지정해줘야합니다.
+  /// 이후의 페이징부터는 cursor에 마지막으로 받은 document를 주면됩니다
+  public func paginate<D, E>(
+    endpoint: E,
+    makeQuery: @escaping FirestoreQueryHandler,
+    isFirstPagination: Bool = true
+  ) -> AnyPublisher<[D], FirestoreServiceError>
+  where D == E.ResponseDTO, E : FirestoreEndopintable {
+    guard case .query = endpoint.method else {
+      return Fail(error: FirestoreServiceError.invalidFirestoreMethodRequest).eraseToAnyPublisher()
+    }
+    
+    guard let collectionRef = endpoint.reference as? CollectionReference else {
+      return Fail(error: FirestoreServiceError.collectionNotFound).eraseToAnyPublisher()
+    }
+    
+    let hasNoMorePage = queryForPagination == nil
+    
+    if isFirstPagination {
+      queryForPagination = makeQuery(collectionRef)
+    } else if hasNoMorePage {
+      return Fail(error: FirestoreServiceError.noMorePage).eraseToAnyPublisher()
+    }
+    
+    return Future { [weak self] promise in
+      self?.queryForPagination?
+        .getDocuments { snapshot, error in
+          guard let snapshot else {
+            promise(.failure(.failToRetrievingCollection(error)))
+            return
+          }
+          
+          if snapshot.isEmpty {
+            self?.queryForPagination = nil
+            promise(.failure(.noMorePage))
+            return
+          }
+          
+          guard let lastDocument = snapshot.documents.last else {
+            self?.queryForPagination = nil
+            promise(.failure(.noMorePage))
+            return
+          }
+          
+          /// Next query
+          self?.queryForPagination = makeQuery(collectionRef)
+            .start(afterDocument: lastDocument)
+          
+          do {
+            let responseDTO = try snapshot.documents.map { documentSnapshot in
+              try documentSnapshot.data(as: D.self)
+            }
+            promise(.success(responseDTO))
+          } catch {
+            promise(.failure(FirestoreServiceError.decodingError(error)))
+          }
+        }
+    }.eraseToAnyPublisher()
   }
 }
 #endif
