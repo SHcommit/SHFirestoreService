@@ -65,7 +65,7 @@ public final class FirestoreService: FirestoreServiceProtocol {
   }
   
   /// Use this method from endpoint's specific DocumentReference
-  ///   when endopint's **FirestoreMethod** is one of save, delete or update
+  ///   when endopint's **FirestoreMethod** is one of delete or update
   public func request(
     endpoint: any FirestoreEndopintable
   ) -> AnyPublisher<Void, FirestoreServiceError> {
