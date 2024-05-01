@@ -13,6 +13,7 @@ public protocol FirestoreServiceProtocol {
   // MARK: - Constants
   typealias FirestoreQueryHandler = (FirestoreReference) -> Query
   typealias FirestoreQueryForPaginationHandler = (CollectionReference) -> Query
+  typealias DocumentID = String
   
   // MARK: - Properties
   var queryForPagination: Query? { get }
@@ -28,7 +29,12 @@ public protocol FirestoreServiceProtocol {
         E: FirestoreEndopintable,
         D == E.ResponseDTO
   
+  
+  /// Contains related logic when the endpoint's FiresotreMethod type is update or delete.
   func request(endpoint: any FirestoreEndopintable) -> AnyPublisher<Void, FirestoreServiceError>
+  
+  /// When the endpoint's FirestoreMethod type is save, the save logic is called in the specific collection path of the endpoint's FirestoreAccessible.
+  func saveDocument(endpoint: any FirestoreEndopintable) -> AnyPublisher<DocumentID, FirestoreServiceError>
   
   func retrieveDocumentIDs<E>(endpoint: E) -> AnyPublisher<E.ResponseDTO, FirestoreServiceError>
   where E: FirestoreEndopintable,
