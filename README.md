@@ -53,7 +53,7 @@ Finally, add `Import SHFirestoreService` to your source code.
 ## Minimum Requirements
 | SHFirestoreService       | Date         | Swift        | Platforms                           |
 |------------|--------------|-------------|-----------------------------------------------|
-| SHCoordinator 1.1.7  | May 1, 2024  | Swift 5.0   | iOS 13.0 |
+| SHCoordinator 1.1.8  | May 1, 2024  | Swift 5.0   | iOS 13.0 |
 
 
 ## Author
