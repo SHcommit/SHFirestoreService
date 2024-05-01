@@ -25,9 +25,10 @@ public final class FirestoreService {
 }
 
 extension FirestoreService: FirestoreServiceProtocol {
-  /// Reqeust responseDTOs from endpoint's specific CollectionReference
+  /// Notes:
+  /// 1. Reqeust responseDTOs from endpoint's specific CollectionReference
   ///   when endpoint's **FirestoreMethod** is get type.
-  /// If specific collection has no any document, it return empty array.
+  /// 2. If specific collection has no any document, it return empty array.
   public func request<D, E>(
     endpoint: E
   ) -> AnyPublisher<[D], FirestoreServiceError>
@@ -52,8 +53,8 @@ extension FirestoreService: FirestoreServiceProtocol {
     return Fail(error: FirestoreServiceError.documentNotFound).eraseToAnyPublisher()
   }
   
-  /// Reqeust a responseDTO from endpoint's specific DocuemntReference
-  ///   when endpoint's **FirestoreMethod** is get type.
+  /// Notes:
+  /// Reqeust a responseDTO from endpoint's specific DocuemntReference when endpoint's **FirestoreMethod** is get type.
   public func request<D, E>(
     endpoint: E
   ) -> AnyPublisher<D, FirestoreServiceError>
@@ -167,7 +168,9 @@ extension FirestoreService: FirestoreServiceProtocol {
       .eraseToAnyPublisher()
   }
   
-  /// If there is only one or many query conditions, you should use **makeQuery** to create the Query from Endpoint's reference computed property.
+  /// Notes:
+  /// If there is only one or many query conditions,
+  ///   you should use **makeQuery** to create the Query from Endpoint's reference computed property.
   public func query<D, E>(
     endpoint: E,
     makeQuery: FirestoreQueryHandler
