@@ -150,8 +150,8 @@ public final class FirestoreService: FirestoreServiceProtocol {
   ///
   public func retrieveDocumentIDs<E>(
     endpoint: E
-  ) -> AnyPublisher<[String], FirestoreServiceError>
-  where E : FirestoreEndopintable, E.ResponseDTO == String {
+  ) -> AnyPublisher<E.ResponseDTO, FirestoreServiceError>
+  where E : FirestoreEndopintable, E.ResponseDTO == [String] {
     guard case .retrieveDocumentIdList = endpoint.method else {
       return Fail(error: FirestoreServiceError.invalidFirestoreMethodRequest).eraseToAnyPublisher()
     }
