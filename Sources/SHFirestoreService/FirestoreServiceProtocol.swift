@@ -30,6 +30,10 @@ public protocol FirestoreServiceProtocol {
   
   func request(endpoint: any FirestoreEndopintable) -> AnyPublisher<Void, FirestoreServiceError>
   
+  func retrieveDocumentIDs<E>(endpoint: E) -> AnyPublisher<[String], FirestoreServiceError>
+  where E: FirestoreEndopintable,
+        E.ResponseDTO == String
+  
   func query<D, E>(
     endpoint: E,
     makeQuery: FirestoreQueryHandler

@@ -140,6 +140,31 @@ public final class FirestoreService: FirestoreServiceProtocol {
       }
       .convertFirestoreServiceError()
       .eraseToAnyPublisher()
+  }
+  
+  /// Retrieve a specific collectionReference's all document's ID.
+  ///
+  /// Notes:
+  /// 1. Specify a collectionReference location in FirestoreAccessible.
+  /// 2. Retrieve a list of document IDs within that collection, whether the fields exist or not.
+  ///
+  public func retrieveDocumentIDs<E>(
+    endpoint: E
+  ) -> AnyPublisher<[String], FirestoreServiceError>
+  where E : FirestoreEndopintable, E.ResponseDTO == String {
+    guard case .retrieveDocumentIdList = endpoint.method else {
+      return Fail(error: FirestoreServiceError.invalidFirestoreMethodRequest).eraseToAnyPublisher()
+    }
+    guard let collectionRef = endpoint.reference as? CollectionReference else {
+      return Fail(error: FirestoreServiceError.collectionNotFound).eraseToAnyPublisher()
+    }
+    return collectionRef.getDocuments()
+      .map { snapshots in
+        if snapshots.isEmpty { return [] }
+        return snapshots.documents.map { documentSnapshot in documentSnapshot.documentID }
+      }
+      .convertFirestoreServiceError()
+      .eraseToAnyPublisher()
 
   }
   
