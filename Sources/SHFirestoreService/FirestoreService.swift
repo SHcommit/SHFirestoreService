@@ -19,6 +19,7 @@ public final class FirestoreService: FirestoreServiceProtocol {
   
   /// Reqeust responseDTOs from endpoint's specific CollectionReference
   ///   when endpoint's **FirestoreMethod** is get type.
+  /// If specific collection has no any document, it return empty array.
   public func request<D, E>(
     endpoint: E
   ) -> AnyPublisher<[D], FirestoreServiceError>
@@ -29,7 +30,10 @@ public final class FirestoreService: FirestoreServiceProtocol {
     if case .get = endpoint.method {
       return collectionRef.getDocuments()
         .tryMap { snapshots in
-          try snapshots.documents.map { snapshot in
+          if snapshots.isEmpty {
+            return []
+          }
+          return try snapshots.documents.map { snapshot in
             try snapshot.data(as: D.self)
           }
         }
@@ -73,7 +77,7 @@ public final class FirestoreService: FirestoreServiceProtocol {
         return Fail(error: FirestoreServiceError.collectionNotFound).eraseToAnyPublisher()
       }
       
-      /// 
+      /// If FirestoreMethod save's associated value is exist, create a document with the document ID and save the requestDTO.
       if let documentId {
         return collectionRef.document(documentId)
           .setData(from: requestDTO)
