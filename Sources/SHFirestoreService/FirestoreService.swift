@@ -70,11 +70,23 @@ public final class FirestoreService: FirestoreServiceProtocol {
     endpoint: any FirestoreEndopintable
   ) -> AnyPublisher<Void, FirestoreServiceError> {
     if case .save(let documentId) = endpoint.method {
-      guard let requestDTO = endpoint.requestDTO else {
-        return Fail(error: FirestoreServiceError.invalidRequestDTO).eraseToAnyPublisher()
-      }
       guard let collectionRef = endpoint.reference as? CollectionReference else {
         return Fail(error: FirestoreServiceError.collectionNotFound).eraseToAnyPublisher()
+      }
+      
+      /// If request DTO is nil, it is assumed that only a document with no fields is created.
+      guard let requestDTO = endpoint.requestDTO else {
+        if let documentId {
+          return collectionRef.document(documentId)
+            .setData([:])
+            .convertFirestoreServiceError()
+            .eraseToAnyPublisher()
+        } else {
+          return collectionRef.addDocument(data: [:])
+            .convertFirestoreServiceError()
+            .map { _ -> () in return }
+            .eraseToAnyPublisher()
+        }
       }
       
       /// If FirestoreMethod save's associated value is exist, create a document with the document ID and save the requestDTO.
@@ -84,6 +96,10 @@ public final class FirestoreService: FirestoreServiceProtocol {
           .convertFirestoreServiceError()
           .map { _ -> () in return }
           .eraseToAnyPublisher()
+      }
+      
+      guard let requestDTO = endpoint.requestDTO else {
+        return Fail(error: FirestoreServiceError.invalidRequestDTO).eraseToAnyPublisher()
       }
       
       return collectionRef.addDocument(from: requestDTO)
