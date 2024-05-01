@@ -6,17 +6,25 @@
 //
 
 #if os(iOS)
-import Foundation
 import Combine
+import Foundation
 import FirebaseFirestore
 import FirebaseFirestoreCombineSwift
 
-public final class FirestoreService: FirestoreServiceProtocol {
+public final class FirestoreService {
+  // MARK: - Dependencies
+  private let backgroundQueue: DispatchQueue
+  
   // MARK: - Properties
   public var queryForPagination: Query? = nil
   
-  public init() {}
-  
+  // MARK: - Lifecycle
+  public init(backgroundQueue: DispatchQueue = .global(qos: .default)) {
+    self.backgroundQueue = backgroundQueue
+  }
+}
+
+extension FirestoreService: FirestoreServiceProtocol {
   /// Reqeust responseDTOs from endpoint's specific CollectionReference
   ///   when endpoint's **FirestoreMethod** is get type.
   /// If specific collection has no any document, it return empty array.
@@ -29,6 +37,7 @@ public final class FirestoreService: FirestoreServiceProtocol {
     }
     if case .get = endpoint.method {
       return collectionRef.getDocuments()
+        .subscribe(on: backgroundQueue)
         .tryMap { snapshots in
           if snapshots.isEmpty {
             return []
@@ -54,6 +63,7 @@ public final class FirestoreService: FirestoreServiceProtocol {
     }
     if case .get = endpoint.method {
       return documentRef.getDocument()
+        .subscribe(on: backgroundQueue)
         .tryMap { snapshot in
           try snapshot.data(as: D.self)
         }
@@ -75,6 +85,7 @@ public final class FirestoreService: FirestoreServiceProtocol {
     
     if case .delete = endpoint.method {
       return documentRef.delete()
+        .subscribe(on: backgroundQueue)
         .convertFirestoreServiceError()
         .eraseToAnyPublisher()
     }
@@ -87,6 +98,7 @@ public final class FirestoreService: FirestoreServiceProtocol {
         let requestDictionary = try requestDTO.toDictionary()
         return documentRef
           .updateData(requestDictionary)
+          .subscribe(on: backgroundQueue)
           .convertFirestoreServiceError()
           .eraseToAnyPublisher()
       } catch {
@@ -122,12 +134,14 @@ public final class FirestoreService: FirestoreServiceProtocol {
         return collectionRef
           .document(documentId)
           .setData([:])
+          .subscribe(on: backgroundQueue)
           .convertFirestoreServiceError()
           .map { _ in  return documentId }
           .eraseToAnyPublisher()
       } else {
         return collectionRef
           .addDocument(data: [:])
+          .subscribe(on: backgroundQueue)
           .map { $0.documentID }
           .convertFirestoreServiceError()
           .eraseToAnyPublisher()
@@ -138,6 +152,7 @@ public final class FirestoreService: FirestoreServiceProtocol {
       return collectionRef
         .document(documentId)
         .setData(from: requestDTO)
+        .subscribe(on: backgroundQueue)
         .map { _ in return documentId }
         .convertFirestoreServiceError()
         .eraseToAnyPublisher()
@@ -146,6 +161,7 @@ public final class FirestoreService: FirestoreServiceProtocol {
     /// If the document ID is not specified, the document is created using Firestore's automatic document ID assignment.
     return collectionRef
       .addDocument(from: requestDTO)
+      .subscribe(on: backgroundQueue)
       .map { $0.documentID }
       .convertFirestoreServiceError()
       .eraseToAnyPublisher()
@@ -165,6 +181,7 @@ public final class FirestoreService: FirestoreServiceProtocol {
     }
     let query = makeQuery(collectionRef)
     return query.getDocuments()
+      .subscribe(on: backgroundQueue)
       .tryMap { querySnapshot in
         try querySnapshot.documents.map { snapshot in
           try snapshot.data(as: D.self)
@@ -191,6 +208,7 @@ public final class FirestoreService: FirestoreServiceProtocol {
       return Fail(error: FirestoreServiceError.collectionNotFound).eraseToAnyPublisher()
     }
     return collectionRef.getDocuments()
+      .subscribe(on: backgroundQueue)
       .map { snapshots in
         if snapshots.isEmpty { return [] }
         return snapshots.documents.map { documentSnapshot in documentSnapshot.documentID }
