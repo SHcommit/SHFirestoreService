@@ -69,45 +69,6 @@ public final class FirestoreService: FirestoreServiceProtocol {
   public func request(
     endpoint: any FirestoreEndopintable
   ) -> AnyPublisher<Void, FirestoreServiceError> {
-    if case .save(let documentId) = endpoint.method {
-      guard let collectionRef = endpoint.reference as? CollectionReference else {
-        return Fail(error: FirestoreServiceError.collectionNotFound).eraseToAnyPublisher()
-      }
-      
-      /// If request DTO is nil, it is assumed that only a document with no fields is created.
-      guard let requestDTO = endpoint.requestDTO else {
-        if let documentId {
-          return collectionRef.document(documentId)
-            .setData([:])
-            .convertFirestoreServiceError()
-            .eraseToAnyPublisher()
-        } else {
-          return collectionRef.addDocument(data: [:])
-            .convertFirestoreServiceError()
-            .map { _ -> () in return }
-            .eraseToAnyPublisher()
-        }
-      }
-      
-      /// If FirestoreMethod save's associated value is exist, create a document with the document ID and save the requestDTO.
-      if let documentId {
-        return collectionRef.document(documentId)
-          .setData(from: requestDTO)
-          .convertFirestoreServiceError()
-          .map { _ -> () in return }
-          .eraseToAnyPublisher()
-      }
-      
-      guard let requestDTO = endpoint.requestDTO else {
-        return Fail(error: FirestoreServiceError.invalidRequestDTO).eraseToAnyPublisher()
-      }
-      
-      return collectionRef.addDocument(from: requestDTO)
-        .convertFirestoreServiceError()
-        .map { _ -> () in return }
-        .eraseToAnyPublisher()
-    }
-    
     guard let documentRef = endpoint.reference as? DocumentReference else {
       return Fail(error: FirestoreServiceError.documentNotFound).eraseToAnyPublisher()
     }
@@ -133,6 +94,61 @@ public final class FirestoreService: FirestoreServiceProtocol {
       }
     }
     return Fail(error: FirestoreServiceError.invalidFirestoreMethodRequest).eraseToAnyPublisher()
+  }
+  
+  /// Save a document using endpoint. And the ID of the created document A is returned.
+  ///
+  /// Notes:
+  /// 1. If requestDTO is nil, only the document is created without any fields.
+  ///   The same applies if you set the document ID or give the document ID through firesotre's automatic document.
+  /// 2. If there is a response DTO at the endpoint,
+  ///   fields and values ​​are formed through the key values ​​defined in CodingKeys through encode(to:) of the encodable.
+  ///
+  ///   Depending on whether there is a specific ID or not, a document with a specified documentId or an automatic ID is created.
+  public func saveDocument(
+    endpoint: any FirestoreEndopintable
+  ) -> AnyPublisher<FirestoreServiceProtocol.DocumentID, FirestoreServiceError> {
+    guard case .save(let documentId) = endpoint.method else {
+      return Fail(error: FirestoreServiceError.invalidFirestoreMethodRequest).eraseToAnyPublisher()
+    }
+    
+    guard let collectionRef = endpoint.reference as? CollectionReference else {
+      return Fail(error: FirestoreServiceError.collectionNotFound).eraseToAnyPublisher()
+    }
+    
+    /// If request DTO is nil, it is assumed that only a document with no fields is created.
+    guard let requestDTO = endpoint.requestDTO else {
+      if let documentId {
+        return collectionRef
+          .document(documentId)
+          .setData([:])
+          .convertFirestoreServiceError()
+          .map { _ in  return documentId }
+          .eraseToAnyPublisher()
+      } else {
+        return collectionRef
+          .addDocument(data: [:])
+          .map { $0.documentID }
+          .convertFirestoreServiceError()
+          .eraseToAnyPublisher()
+      }
+    }
+    
+    if let documentId {
+      return collectionRef
+        .document(documentId)
+        .setData(from: requestDTO)
+        .map { _ in return documentId }
+        .convertFirestoreServiceError()
+        .eraseToAnyPublisher()
+    }
+    
+    /// If the document ID is not specified, the document is created using Firestore's automatic document ID assignment.
+    return collectionRef
+      .addDocument(from: requestDTO)
+      .map { $0.documentID }
+      .convertFirestoreServiceError()
+      .eraseToAnyPublisher()
   }
   
   /// If there is only one or many query conditions, you should use **makeQuery** to create the Query from Endpoint's reference computed property.
