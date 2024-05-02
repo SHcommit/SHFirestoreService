@@ -294,8 +294,8 @@ extension FirestoreService: FirestoreServiceProtocol {
   }
 }
 
-// MARK: - FirestoreTransactable
-extension FirestoreService: FirestoreTransactable {
+// MARK: - FirestoreTransactional
+extension FirestoreService: FirestoreTransactional {
   public func performTransaction(
     _ updateBlock: @escaping (Transaction) throws -> Any?
   ) -> AnyPublisher<Any?, any Error> {

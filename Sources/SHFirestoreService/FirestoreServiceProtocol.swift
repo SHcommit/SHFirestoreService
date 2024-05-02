@@ -9,7 +9,7 @@ import Foundation
 import Combine
 import FirebaseFirestore
 
-public protocol FirestoreServiceProtocol {
+public protocol FirestoreServiceProtocol: FirestoreTransactional {
   // MARK: - Constants
   typealias FirestoreQueryHandler = (FirestoreReference) -> Query
   typealias FirestoreQueryForPaginationHandler = (CollectionReference) -> Query
