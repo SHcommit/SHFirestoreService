@@ -299,6 +299,8 @@ extension FirestoreService: FirestoreQueryable {
 
 // MARK: - FirestoreTransactional
 extension FirestoreService: FirestoreTransactional {
+  /// Notes:
+  /// 1. Executes a transaction and emits FiresotreServiceError if execution fails.
   public func performTransaction(
     _ updateBlock: @escaping (Transaction) throws -> Any?
   ) -> AnyPublisher<Any?, any Error> {
