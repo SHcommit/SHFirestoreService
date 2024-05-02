@@ -24,6 +24,7 @@ public final class FirestoreService {
   }
 }
 
+// MARK: - FirestoreServiceProtocol
 extension FirestoreService: FirestoreServiceProtocol {
   /// Notes:
   /// 1. Reqeust responseDTOs from endpoint's specific CollectionReference
@@ -72,7 +73,7 @@ extension FirestoreService: FirestoreServiceProtocol {
         .eraseToAnyPublisher()
     }
     return Fail(error: FirestoreServiceError.documentNotFound).eraseToAnyPublisher()
-
+    
   }
   
   /// Use this method from endpoint's specific DocumentReference
@@ -168,32 +169,6 @@ extension FirestoreService: FirestoreServiceProtocol {
       .eraseToAnyPublisher()
   }
   
-  /// Notes:
-  /// If there is only one or many query conditions,
-  ///   you should use **makeQuery** to create the Query from Endpoint's reference computed property.
-  public func query<D, E>(
-    endpoint: E,
-    makeQuery: FirestoreQueryHandler
-  ) -> AnyPublisher<[D], FirestoreServiceError>
-  where D == E.ResponseDTO, E : FirestoreEndopintable {
-    guard case .query = endpoint.method else {
-      return Fail(error: FirestoreServiceError.invalidFirestoreMethodRequest).eraseToAnyPublisher()
-    }
-    guard let collectionRef = endpoint.reference as? CollectionReference else {
-      return Fail(error: FirestoreServiceError.collectionNotFound).eraseToAnyPublisher()
-    }
-    let query = makeQuery(collectionRef)
-    return query.getDocuments()
-      .subscribe(on: backgroundQueue)
-      .tryMap { querySnapshot in
-        try querySnapshot.documents.map { snapshot in
-          try snapshot.data(as: D.self)
-        }
-      }
-      .convertFirestoreServiceError()
-      .eraseToAnyPublisher()
-  }
-  
   /// Retrieve a specific collectionReference's all document's ID.
   ///
   /// Notes:
@@ -218,7 +193,35 @@ extension FirestoreService: FirestoreServiceProtocol {
       }
       .convertFirestoreServiceError()
       .eraseToAnyPublisher()
+  }
+}
 
+// MARK: - FirestoreQueryable
+extension FirestoreService: FirestoreQueryable {
+  /// Notes:
+  /// If there is only one or many query conditions,
+  ///   you should use **makeQuery** to create the Query from Endpoint's reference computed property.
+  public func query<D, E>(
+    endpoint: E,
+    makeQuery: FirestoreQueryHandler
+  ) -> AnyPublisher<[D], FirestoreServiceError>
+  where D == E.ResponseDTO, E : FirestoreEndopintable {
+    guard case .query = endpoint.method else {
+      return Fail(error: FirestoreServiceError.invalidFirestoreMethodRequest).eraseToAnyPublisher()
+    }
+    guard let collectionRef = endpoint.reference as? CollectionReference else {
+      return Fail(error: FirestoreServiceError.collectionNotFound).eraseToAnyPublisher()
+    }
+    let query = makeQuery(collectionRef)
+    return query.getDocuments()
+      .subscribe(on: backgroundQueue)
+      .tryMap { querySnapshot in
+        try querySnapshot.documents.map { snapshot in
+          try snapshot.data(as: D.self)
+        }
+      }
+      .convertFirestoreServiceError()
+      .eraseToAnyPublisher()
   }
   
   /// Notes:
