@@ -9,8 +9,10 @@ import Combine
 import Foundation
 import FirebaseFirestore
 
-protocol FirestoreTransactable {
+#if os(iOS)
+public protocol FirestoreTransactable {
   func performTransaction(
     _ updateBlock: @escaping (Transaction) throws -> Any?
   ) -> AnyPublisher<Any?, Error>
 }
+#endif
