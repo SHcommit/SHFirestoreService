@@ -17,6 +17,7 @@ import Foundation
   case wrappedfirestoreError(Error)
   case encodingError(Error)
   case decodingError(Error)
+  case failedTransaction(Error)
   
   /// when paging
   case noMorePage
@@ -44,6 +45,8 @@ import Foundation
       return "No more page"
     case .failToRetrievingCollection(let error):
       return "Fail to retrieving collection: \(error?.localizedDescription ?? "Unknown error")"
+    case .failedTransaction(let error):
+      return "Fail transaction: \(error.localizedDescription)"
     }
   }
 }

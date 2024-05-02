@@ -293,4 +293,17 @@ extension FirestoreService: FirestoreServiceProtocol {
     }.eraseToAnyPublisher()
   }
 }
+
+// MARK: - FirestoreTransactable
+extension FirestoreService: FirestoreTransactable {
+  public func performTransaction(
+    _ updateBlock: @escaping (Transaction) throws -> Any?
+  ) -> AnyPublisher<Any?, any Error> {
+    return Firestore.firestore()
+      .runTransaction(updateBlock)
+      .mapError { error in
+        return FirestoreServiceError.failedTransaction(error)
+      }.eraseToAnyPublisher()
+  }
+}
 #endif
