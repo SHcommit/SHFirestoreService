@@ -11,7 +11,13 @@ import FirebaseFirestore
 public protocol FirestoreEndopintable {
   associatedtype ResponseDTO: Decodable
   
+  /// It is possible to update or save using Encodable form.
   var requestDTO: (any Encodable)? { get }
+
+  /// It is possible to update or save using dictionary form.
+  /// E.g. FieldValue is not supported for encoding when encodable object's inner property's type is FieldValue.
+  ///   In this case, you should use this type.
+  var requestDTODictionary: [String: Any]? { get }
   
   /// Firestore's service accesses and works on a collection, a docuemnt or docuemnts based on the FirestoreMethod.
   /// So, you need to assign the desired request from FirestoreService to what is required by FirestoreMethod.

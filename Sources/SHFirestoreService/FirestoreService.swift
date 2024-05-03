@@ -94,6 +94,13 @@ extension FirestoreService: FirestoreServiceProtocol {
     
     if case .update = endpoint.method {
       guard let requestDTO = endpoint.requestDTO else {
+        if let requestDTODictionary = endpoint.requestDTODictionary {
+          return documentRef
+            .updateData(requestDTODictionary)
+            .subscribe(on: backgroundQueue)
+            .convertFirestoreServiceError()
+            .eraseToAnyPublisher()
+        }
         return Fail(error: FirestoreServiceError.invalidRequestDTO).eraseToAnyPublisher()
       }
       do {
@@ -113,9 +120,11 @@ extension FirestoreService: FirestoreServiceProtocol {
   /// Save a document using endpoint. And the ID of the created document A is returned.
   ///
   /// Notes:
-  /// 1. If requestDTO is nil, only the document is created without any fields.
+  /// 1. If requestDTO and requestDTODictionary are nil, only the document is created without any fields.
   ///   The same applies if you set the document ID or give the document ID through firesotre's automatic document.
-  /// 2. If there is a response DTO at the endpoint,
+  /// 2. If a respose dto dictionary is exist at the endpoint,
+  ///   It is saved in the document If documentId exists, the ID of the document is specified, otherwise it is automatically generated.
+  /// 3. If there is a response DTO at the endpoint,
   ///   fields and values ​​are formed through the key values ​​defined in CodingKeys through encode(to:) of the encodable.
   ///
   ///   Depending on whether there is a specific ID or not, a document with a specified documentId or an automatic ID is created.
@@ -130,7 +139,26 @@ extension FirestoreService: FirestoreServiceProtocol {
       return Fail(error: FirestoreServiceError.collectionNotFound).eraseToAnyPublisher()
     }
     
-    /// If request DTO is nil, it is assumed that only a document with no fields is created.
+    if let requestDTODictionary = endpoint.requestDTODictionary {
+      if let documentId {
+        return collectionRef
+          .document(documentId)
+          .setData(requestDTODictionary)
+          .subscribe(on: backgroundQueue)
+          .convertFirestoreServiceError()
+          .map { _ in return documentId }
+          .eraseToAnyPublisher()
+      } else {
+        return collectionRef
+          .addDocument(data: requestDTODictionary)
+          .subscribe(on: backgroundQueue)
+          .map { $0.documentID }
+          .convertFirestoreServiceError()
+          .eraseToAnyPublisher()
+      }
+    }
+    
+    /// If request DTO and requestDTODictionary are nil it is assumed that only a document with no fields is created.
     guard let requestDTO = endpoint.requestDTO else {
       if let documentId {
         return collectionRef
