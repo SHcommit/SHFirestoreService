@@ -18,6 +18,7 @@ import Foundation
   case encodingError(Error)
   case decodingError(Error)
   case failedTransaction(Error)
+  case failedToMakeQuery(Error)
   
   /// when paging
   case noMorePage
@@ -47,6 +48,8 @@ import Foundation
       return "Fail to retrieving collection: \(error?.localizedDescription ?? "Unknown error")"
     case .failedTransaction(let error):
       return "Fail transaction: \(error.localizedDescription)"
+    case .failedToMakeQuery(let error):
+      return "Fail to make query :\(error.localizedDescription)"
     }
   }
 }

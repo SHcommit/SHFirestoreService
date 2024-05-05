@@ -11,7 +11,7 @@ import FirebaseFirestore
 
 #if os(iOS)
 public protocol FirestoreQueryable {
-  typealias FirestoreQueryHandler = (FirestoreReference) -> Query
+  typealias FirestoreQueryHandler = (FirestoreReference) throws -> Query
   typealias FirestoreQueryForPaginationHandler = (CollectionReference) -> Query
   
   var queryForPagination: Query? { get }

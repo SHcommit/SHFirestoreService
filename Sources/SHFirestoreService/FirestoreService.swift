@@ -252,17 +252,21 @@ extension FirestoreService: FirestoreQueryable {
     guard let collectionRef = endpoint.reference as? CollectionReference else {
       return Fail(error: FirestoreServiceError.collectionNotFound).eraseToAnyPublisher()
     }
-    let query = makeQuery(collectionRef)
-    return query.getDocuments()
-      .subscribe(on: backgroundQueue)
-      .receive(on: backgroundQueue)
-      .tryMap { querySnapshot in
-        try querySnapshot.documents.map { snapshot in
-          try snapshot.data(as: D.self)
+    do {
+      let query = try makeQuery(collectionRef)
+      return query.getDocuments()
+        .subscribe(on: backgroundQueue)
+        .receive(on: backgroundQueue)
+        .tryMap { querySnapshot in
+          try querySnapshot.documents.map { snapshot in
+            try snapshot.data(as: D.self)
+          }
         }
-      }
-      .convertFirestoreServiceError()
-      .eraseToAnyPublisher()
+        .convertFirestoreServiceError()
+        .eraseToAnyPublisher()
+    } catch {
+      return Fail(error: FirestoreServiceError.failedToMakeQuery(error)).eraseToAnyPublisher()
+    }
   }
   
   /// Notes:
