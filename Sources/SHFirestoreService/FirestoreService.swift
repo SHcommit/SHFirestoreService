@@ -84,14 +84,10 @@ extension FirestoreService: FirestoreServiceProtocol {
   }
   
   /// Use this method from endpoint's specific DocumentReference
-  ///   when endopint's **FirestoreMethod** is one of delete or update
+  ///   when endopint's **FirestoreMethod** is one of delete, update or deleteACollection
   public func request(
     endpoint: any FirestoreEndopintable
   ) -> AnyPublisher<Void, FirestoreServiceError> {
-    guard let documentRef = endpoint.reference as? DocumentReference else {
-      return Fail(error: FirestoreServiceError.documentNotFound).eraseToAnyPublisher()
-    }
-    
     if case .deleteACollection = endpoint.method {
       guard let collectionRef = endpoint.reference as? CollectionReference else {
         return Fail(error: FirestoreServiceError.collectionNotFound).eraseToAnyPublisher()
@@ -109,7 +105,10 @@ extension FirestoreService: FirestoreServiceProtocol {
         .commit()
         .eraseToAnyPublisher()
     }
-
+    
+    guard let documentRef = endpoint.reference as? DocumentReference else {
+      return Fail(error: FirestoreServiceError.documentNotFound).eraseToAnyPublisher()
+    }
     
     if case .delete = endpoint.method {
       return documentRef.delete()
