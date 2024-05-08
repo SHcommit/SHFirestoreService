@@ -10,6 +10,9 @@ import Foundation
 #if canImport(Combine) && os(iOS) && swift(>=5.0)
 import Combine
 
+@available(swift 5.0)
+@available(iOS 13.0, *)
+
 public extension Publisher
 where Output == Void, Failure == FirestoreServiceError {
   func sink(promise: @escaping Future<Output, Error>.Promise) -> AnyCancellable {
