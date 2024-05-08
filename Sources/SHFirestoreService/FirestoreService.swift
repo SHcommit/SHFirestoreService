@@ -42,8 +42,7 @@ extension FirestoreService: FirestoreServiceProtocol {
     }
     if case .get = endpoint.method {
       return collectionRef.getDocuments()
-        .subscribe(on: backgroundQueue)
-        .receive(on: backgroundQueue)
+        .subscribeAndReceive(on: backgroundQueue)
         .tryMap { snapshots in
           if snapshots.isEmpty {
             return []
@@ -69,8 +68,7 @@ extension FirestoreService: FirestoreServiceProtocol {
     }
     if case .get = endpoint.method {
       return documentRef.getDocument()
-        .subscribe(on: backgroundQueue)
-        .receive(on: backgroundQueue)
+        .subscribeAndReceive(on: backgroundQueue)
         .tryMap { snapshot in
           try snapshot.data(as: D.self)
         }
@@ -96,8 +94,7 @@ extension FirestoreService: FirestoreServiceProtocol {
       }
       
       return collectionRef.getDocuments()
-        .subscribe(on: backgroundQueue)
-        .receive(on: backgroundQueue)
+        .subscribeAndReceive(on: backgroundQueue)
         .mapError { error in
           FirestoreServiceError.documentsNotFound(error)
         }.map { snapshot in
@@ -112,8 +109,7 @@ extension FirestoreService: FirestoreServiceProtocol {
     
     if case .delete = endpoint.method {
       return documentRef.delete()
-        .subscribe(on: backgroundQueue)
-        .receive(on: backgroundQueue)
+        .subscribeAndReceive(on: backgroundQueue)
         .convertFirestoreServiceError()
         .eraseToAnyPublisher()
     }
@@ -123,8 +119,7 @@ extension FirestoreService: FirestoreServiceProtocol {
         if let requestDTODictionary = endpoint.requestDTODictionary {
           return documentRef
             .updateData(requestDTODictionary)
-            .subscribe(on: backgroundQueue)
-            .receive(on: backgroundQueue)
+            .subscribeAndReceive(on: backgroundQueue)
             .convertFirestoreServiceError()
             .eraseToAnyPublisher()
         }
@@ -134,8 +129,7 @@ extension FirestoreService: FirestoreServiceProtocol {
         let requestDictionary = try requestDTO.toDictionary()
         return documentRef
           .updateData(requestDictionary)
-          .subscribe(on: backgroundQueue)
-          .receive(on: backgroundQueue)
+          .subscribeAndReceive(on: backgroundQueue)
           .convertFirestoreServiceError()
           .eraseToAnyPublisher()
       } catch {
@@ -172,16 +166,14 @@ extension FirestoreService: FirestoreServiceProtocol {
         return collectionRef
           .document(documentId)
           .setData(requestDTODictionary)
-          .subscribe(on: backgroundQueue)
-          .receive(on: backgroundQueue)
+          .subscribeAndReceive(on: backgroundQueue)
           .convertFirestoreServiceError()
           .map { _ in return documentId }
           .eraseToAnyPublisher()
       } else {
         return collectionRef
           .addDocument(data: requestDTODictionary)
-          .subscribe(on: backgroundQueue)
-          .receive(on: backgroundQueue)
+          .subscribeAndReceive(on: backgroundQueue)
           .map { $0.documentID }
           .convertFirestoreServiceError()
           .eraseToAnyPublisher()
@@ -194,16 +186,14 @@ extension FirestoreService: FirestoreServiceProtocol {
         return collectionRef
           .document(documentId)
           .setData([:])
-          .subscribe(on: backgroundQueue)
-          .receive(on: backgroundQueue)
+          .subscribeAndReceive(on: backgroundQueue)
           .convertFirestoreServiceError()
           .map { _ in  return documentId }
           .eraseToAnyPublisher()
       } else {
         return collectionRef
           .addDocument(data: [:])
-          .subscribe(on: backgroundQueue)
-          .receive(on: backgroundQueue)
+          .subscribeAndReceive(on: backgroundQueue)
           .map { $0.documentID }
           .convertFirestoreServiceError()
           .eraseToAnyPublisher()
@@ -214,8 +204,7 @@ extension FirestoreService: FirestoreServiceProtocol {
       return collectionRef
         .document(documentId)
         .setData(from: requestDTO)
-        .subscribe(on: backgroundQueue)
-        .receive(on: backgroundQueue)
+        .subscribeAndReceive(on: backgroundQueue)
         .map { _ in return documentId }
         .convertFirestoreServiceError()
         .eraseToAnyPublisher()
@@ -224,8 +213,7 @@ extension FirestoreService: FirestoreServiceProtocol {
     /// If the document ID is not specified, the document is created using Firestore's automatic document ID assignment.
     return collectionRef
       .addDocument(from: requestDTO)
-      .subscribe(on: backgroundQueue)
-      .receive(on: backgroundQueue)
+      .subscribeAndReceive(on: backgroundQueue)
       .map { $0.documentID }
       .convertFirestoreServiceError()
       .eraseToAnyPublisher()
@@ -248,8 +236,7 @@ extension FirestoreService: FirestoreServiceProtocol {
       return Fail(error: FirestoreServiceError.collectionNotFound).eraseToAnyPublisher()
     }
     return collectionRef.getDocuments()
-      .subscribe(on: backgroundQueue)
-      .receive(on: backgroundQueue)
+      .subscribeAndReceive(on: backgroundQueue)
       .map { snapshots in
         if snapshots.isEmpty { return [] }
         return snapshots.documents.map { documentSnapshot in documentSnapshot.documentID }
@@ -278,8 +265,7 @@ extension FirestoreService: FirestoreQueryable {
     do {
       let query = try makeQuery(collectionRef)
       return query.getDocuments()
-        .subscribe(on: backgroundQueue)
-        .receive(on: backgroundQueue)
+        .subscribeAndReceive(on: backgroundQueue)
         .tryMap { querySnapshot in
           try querySnapshot.documents.map { snapshot in
             try snapshot.data(as: D.self)
@@ -361,10 +347,7 @@ extension FirestoreService: FirestoreQueryable {
             promise(.failure(FirestoreServiceError.decodingError(error)))
           }
         }
-    }
-    .subscribe(on: backgroundQueue)
-    .receive(on: backgroundQueue)
-    .eraseToAnyPublisher()
+    }.eraseToAnyPublisher()
   }
 }
 
@@ -377,8 +360,7 @@ extension FirestoreService: FirestoreTransactional {
   ) -> AnyPublisher<Any?, any Error> {
     return Firestore.firestore()
       .runTransaction(updateBlock)
-      .subscribe(on: backgroundQueue)
-      .receive(on: backgroundQueue)
+      .subscribeAndReceive(on: backgroundQueue)
       .mapError { error in
         return FirestoreServiceError.failedTransaction(error)
       }.eraseToAnyPublisher()
