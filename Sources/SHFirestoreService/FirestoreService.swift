@@ -33,7 +33,10 @@ extension FirestoreService: FirestoreServiceProtocol {
   public func request<D, E>(
     endpoint: E
   ) -> AnyPublisher<[D], FirestoreServiceError>
-  where D == E.ResponseDTO, E : FirestoreEndopintable {
+  where E: FirestoreEndopintable,
+        E.ResponseDTO: Collection,
+        E.ResponseDTO.Element == D,
+        D: Decodable {
     guard let collectionRef = endpoint.reference as? CollectionReference else {
       return Fail(error: FirestoreServiceError.collectionNotFound).eraseToAnyPublisher()
     }
@@ -217,7 +220,7 @@ extension FirestoreService: FirestoreServiceProtocol {
   public func retrieveDocumentIDs<E>(
     endpoint: E
   ) -> AnyPublisher<E.ResponseDTO, FirestoreServiceError>
-  where E : FirestoreEndopintable, E.ResponseDTO == [String] {
+  where E: FirestoreEndopintable, E.ResponseDTO == [String] {
     guard case .retrieveDocumentIdList = endpoint.method else {
       return Fail(error: FirestoreServiceError.invalidFirestoreMethodRequest).eraseToAnyPublisher()
     }

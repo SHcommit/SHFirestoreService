@@ -15,9 +15,10 @@ public protocol FirestoreServiceProtocol: FirestoreTransactional, FirestoreQuery
   
   // MARK: - Helpers
   func request<D, E>(endpoint: E) -> AnyPublisher<[D], FirestoreServiceError>
-  where D: Decodable,
-        E: FirestoreEndopintable,
-        D == E.ResponseDTO
+  where E: FirestoreEndopintable,
+        E.ResponseDTO: Collection,
+        E.ResponseDTO.Element == D,
+        D: Decodable
   
   func request<D, E>(endpoint: E) -> AnyPublisher<D, FirestoreServiceError>
   where D: Decodable,
