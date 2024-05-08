@@ -11,6 +11,7 @@ import Foundation
 @frozen public enum FirestoreServiceError: LocalizedError {
   case collectionNotFound
   case documentNotFound
+  case documentsNotFound(Error)
   case methodNotSupported
   case invalidFirestoreMethodRequest
   case invalidRequestDTO
@@ -19,6 +20,7 @@ import Foundation
   case decodingError(Error)
   case failedTransaction(Error)
   case failedToMakeQuery(Error)
+  case failedToWriteBatchCommit(Error)
   
   /// when paging
   case noMorePage
@@ -50,6 +52,10 @@ import Foundation
       return "Fail transaction: \(error.localizedDescription)"
     case .failedToMakeQuery(let error):
       return "Fail to make query :\(error.localizedDescription)"
+    case .documentsNotFound(let error):
+      return "Fail to get documents: \(error.localizedDescription)"
+    case .failedToWriteBatchCommit(let error):
+      return "Fail to write batch commit: \(error.localizedDescription)"
     }
   }
 }

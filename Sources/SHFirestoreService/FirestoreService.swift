@@ -90,6 +90,26 @@ extension FirestoreService: FirestoreServiceProtocol {
       return Fail(error: FirestoreServiceError.documentNotFound).eraseToAnyPublisher()
     }
     
+    if case .deleteACollection = endpoint.method {
+      guard let collectionRef = endpoint.reference as? CollectionReference else {
+        return Fail(error: FirestoreServiceError.collectionNotFound).eraseToAnyPublisher()
+      }
+      
+      return collectionRef.getDocuments()
+        .subscribe(on: backgroundQueue)
+        .receive(on: backgroundQueue)
+        .mapError { error in
+          FirestoreServiceError.documentsNotFound(error)
+        }.map { snapshot in
+          let batch = Firestore.firestore().batch()
+          snapshot.documents.forEach { batch.deleteDocument($0.reference) }
+          return batch
+        }
+        .commit()
+        .eraseToAnyPublisher()
+    }
+
+    
     if case .delete = endpoint.method {
       return documentRef.delete()
         .subscribe(on: backgroundQueue)

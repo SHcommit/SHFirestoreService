@@ -22,6 +22,9 @@ import FirebaseFirestore
   /// If you want to specify the document name directly, just enter the associate value.
   case save(DocumentId?)
   case delete
+  
+  /// This must be specified when deleting all documents in a collection.
+  case deleteACollection
   case update
   case query
 }
