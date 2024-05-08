@@ -5,11 +5,15 @@
 //  Created by 양승현 on 4/19/24.
 //
 
-#if os(iOS)
-import Combine
 import Foundation
 import FirebaseFirestore
 import FirebaseFirestoreCombineSwift
+
+#if os(iOS) && canImport(Combine) && swift(>=5.0)
+import Combine
+
+@available(swift 5.0)
+@available(iOS 13.0, *)
 
 public final class FirestoreService {
   // MARK: - Dependencies
