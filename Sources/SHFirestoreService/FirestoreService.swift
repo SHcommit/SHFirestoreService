@@ -61,16 +61,23 @@ extension FirestoreService: FirestoreServiceProtocol {
     return Fail(error: FirestoreServiceError.documentNotFound).eraseToAnyPublisher()
   }
   
+  /// Reqeust for response a D type's responseDTO.
+  ///
   /// Notes:
-  /// Reqeust a responseDTO from endpoint's specific DocuemntReference when endpoint's **FirestoreMethod** is get type.
+  /// 1. Reqeust a responseDTO from endpoint's specific DocuemntReference adapting FirestoreAccessible
+  ///     when endpoint's **FirestoreMethod** is get type.
+  /// 2. Request for the number of all documents from endpoint's specific CollectionReference adapting FirestoreAccessible
+  ///     when endpoint's **FirestoreMethod** is retrieveNumberOfDocuments type.
+  ///     - This logic using AggrateQuery's count() that match between 0 and 1000 index entries billed for one documen read: ]
+  ///     - https://firebase.google.com/docs/firestore/query-data/aggregation-queries
   public func request<D, E>(
     endpoint: E
   ) -> AnyPublisher<D, FirestoreServiceError>
   where D == E.ResponseDTO, E : FirestoreEndopintable {
-    guard let documentRef = endpoint.reference as? DocumentReference else {
-      return Fail(error: FirestoreServiceError.documentNotFound).eraseToAnyPublisher()
-    }
     if case .get = endpoint.method {
+      guard let documentRef = endpoint.reference as? DocumentReference else {
+        return Fail(error: FirestoreServiceError.documentNotFound).eraseToAnyPublisher()
+      }
       return documentRef.getDocument()
         .subscribeAndReceive(on: backgroundQueue)
         .tryMap { snapshot in
@@ -79,8 +86,20 @@ extension FirestoreService: FirestoreServiceProtocol {
         .convertFirestoreServiceError()
         .eraseToAnyPublisher()
     }
+    if D.self == Int.self {
+      guard let collectionRef = endpoint.reference as? CollectionReference else {
+        return Fail(error: FirestoreServiceError.collectionNotFound).eraseToAnyPublisher()
+      }
+      if case .retrieveNumberOfDocuments = endpoint.method {
+        let query = collectionRef.count
+        return query.getAggregateQuery(source: .server)
+          .subscribeAndReceive(on: backgroundQueue)
+          .convertFirestoreServiceError()
+          .map { ($0?.count ?? 0) as! D }
+          .eraseToAnyPublisher()
+      }
+    }
     return Fail(error: FirestoreServiceError.documentNotFound).eraseToAnyPublisher()
-    
   }
   
   /// Use this method from endpoint's specific DocumentReference
