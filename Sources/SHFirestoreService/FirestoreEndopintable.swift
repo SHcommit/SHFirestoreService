@@ -21,7 +21,7 @@ public protocol FirestoreEndopintable {
   
   /// Firestore's service accesses and works on a collection, a docuemnt or docuemnts based on the FirestoreMethod.
   /// So, you need to assign the desired request from FirestoreService to what is required by FirestoreMethod.
-  var method: FirestoreMethod { get }
+  var method: FirestoreMethod? { get }
   
   /// In order to access a specific collection or document in firestore, you must comply with Firestore DataLocationable.
   /// If you want to access the collection, docuemntRef must return nil.
