@@ -9,7 +9,7 @@ import Foundation
 import Combine
 import FirebaseFirestore
 
-public protocol FirestoreServiceProtocol: FirestoreTransactional, FirestoreQueryable {
+public protocol FirestoreServiceProtocol: FirestoreTransactional, FirestoreQueryable, FirestoreDocumentSupportable {
   // MARK: - Constants
   typealias DocumentID = String
   
