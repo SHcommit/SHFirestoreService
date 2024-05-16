@@ -11,4 +11,15 @@ import FirebaseFirestore
 public protocol FirestoreReference { }
 extension DocumentReference: FirestoreReference { }
 extension CollectionReference: FirestoreReference { }
+
+// MARK: - Helpers
+extension FirestoreReference {
+  var asCollectionRef: CollectionReference? {
+    return self as? CollectionReference
+  }
+  
+  var asDocumentRef: DocumentReference? {
+    return self as? DocumentReference
+  }
+}
 #endif
