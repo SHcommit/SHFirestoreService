@@ -388,4 +388,23 @@ extension FirestoreService: FirestoreTransactional {
       }.eraseToAnyPublisher()
   }
 }
+
+// MARK: - FirestoreDocumentSupportable
+extension FirestoreService: FirestoreDocumentSupportable {
+  /// Determine whether a document exists
+  ///
+  /// Notes:
+  /// 1. Do not need to specify FirestoreMethod's specific type when using this function.
+  /// 2. Set up requestType of FirestoreAccessible in endpoint to access firestore's a specific document before call this function.
+  public func isDocumentExists(endpoint: any FirestoreEndopintable) -> AnyPublisher<Bool, FirestoreServiceError> {
+    guard let documentRef = endpoint.reference.asDocumentRef else {
+      return Fail(error: FirestoreServiceError.documentNotFound).eraseToAnyPublisher()
+    }
+    return documentRef
+      .getDocument()
+      .convertFirestoreServiceError()
+      .map { snapshot -> Bool in return snapshot.exists }.eraseToAnyPublisher()
+      .eraseToAnyPublisher()
+  }
+}
 #endif
