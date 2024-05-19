@@ -371,6 +371,44 @@ extension FirestoreService: FirestoreQueryable {
         }
     }.eraseToAnyPublisher()
   }
+}
+
+// MARK: - FirestoreTransactional
+extension FirestoreService: FirestoreTransactional {
+  /// Notes:
+  /// 1. Executes a transaction and emits FiresotreServiceError if execution fails.
+  public func performTransaction(
+    _ updateBlock: @escaping (Transaction) throws -> Any?
+  ) -> AnyPublisher<Any?, any Error> {
+    return Firestore.firestore()
+      .runTransaction(updateBlock)
+      .subscribeAndReceive(on: backgroundQueue)
+      .mapError { error in
+        return FirestoreServiceError.failedTransaction(error)
+      }.eraseToAnyPublisher()
+  }
+}
+
+// MARK: - FirestoreDocumentSupportable
+extension FirestoreService: FirestoreDocumentSupportable {
+  /// Determine whether a document exists
+  ///
+  /// Notes:
+  /// 1. Do not need to specify FirestoreMethod's specific type when using this function.
+  /// 2. Set up requestType of FirestoreAccessible in endpoint to access firestore's a specific document before call this function.
+  /// 3. When a document path is provided from requestType, this function determines whether the document exists by querying the snapshot.
+  public func isDocumentExists(
+    endpoint: any FirestoreEndopintable
+  ) -> AnyPublisher<Bool, FirestoreServiceError> {
+    guard let documentRef = endpoint.reference.asDocumentRef else {
+      return Fail(error: FirestoreServiceError.documentNotFound).eraseToAnyPublisher()
+    }
+    return documentRef
+      .getDocument()
+      .convertFirestoreServiceError()
+      .map { snapshot -> Bool in return snapshot.exists }.eraseToAnyPublisher()
+      .eraseToAnyPublisher()
+  }
   
   /// Checks if a document is duplicated or not from the endpoint requestType is a collectionRef using firestore's query.
   ///
@@ -400,7 +438,7 @@ extension FirestoreService: FirestoreQueryable {
   ///   // TODO: - You can check whether the query has any matching documents in this downstream
   /// }
   /// ```
-  public func isFieldDuplicated(
+  public func isDocumentExists(
     endpoint: any FirestoreEndopintable,
     makeQuery: @escaping FirestoreQueryHandler
   ) -> AnyPublisher<Bool, FirestoreServiceError> {
@@ -426,41 +464,6 @@ extension FirestoreService: FirestoreQueryable {
         promise(.failure(.wrappedfirestoreError(error)))
       }
     }.eraseToAnyPublisher()
-  }
-}
-
-// MARK: - FirestoreTransactional
-extension FirestoreService: FirestoreTransactional {
-  /// Notes:
-  /// 1. Executes a transaction and emits FiresotreServiceError if execution fails.
-  public func performTransaction(
-    _ updateBlock: @escaping (Transaction) throws -> Any?
-  ) -> AnyPublisher<Any?, any Error> {
-    return Firestore.firestore()
-      .runTransaction(updateBlock)
-      .subscribeAndReceive(on: backgroundQueue)
-      .mapError { error in
-        return FirestoreServiceError.failedTransaction(error)
-      }.eraseToAnyPublisher()
-  }
-}
-
-// MARK: - FirestoreDocumentSupportable
-extension FirestoreService: FirestoreDocumentSupportable {
-  /// Determine whether a document exists
-  ///
-  /// Notes:
-  /// 1. Do not need to specify FirestoreMethod's specific type when using this function.
-  /// 2. Set up requestType of FirestoreAccessible in endpoint to access firestore's a specific document before call this function.
-  public func isDocumentExists(endpoint: any FirestoreEndopintable) -> AnyPublisher<Bool, FirestoreServiceError> {
-    guard let documentRef = endpoint.reference.asDocumentRef else {
-      return Fail(error: FirestoreServiceError.documentNotFound).eraseToAnyPublisher()
-    }
-    return documentRef
-      .getDocument()
-      .convertFirestoreServiceError()
-      .map { snapshot -> Bool in return snapshot.exists }.eraseToAnyPublisher()
-      .eraseToAnyPublisher()
   }
 }
 #endif
