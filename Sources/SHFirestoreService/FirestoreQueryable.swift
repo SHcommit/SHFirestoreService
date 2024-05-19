@@ -49,7 +49,7 @@ public protocol FirestoreQueryable {
   /// - Throws: `FirestoreServiceError` if the query execution fails.
   func isFieldDuplicated(
     endpoint: any FirestoreEndopintable,
-    from query: FirestoreQueryHandler
+    makeQuery query: FirestoreQueryHandler
   ) -> AnyPublisher<Bool, FirestoreServiceError>
 }
 #endif
