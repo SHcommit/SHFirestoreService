@@ -54,7 +54,7 @@ Finally, add `Import SHFirestoreService` to your source code.
 | SHFirestoreService       | Date         | Swift        | Platforms                           |
 |------------|--------------|-------------|-----------------------------------------------|
 | SHFirestoreService 1.2.9  | May 16, 2024  | Swift 5.0   | iOS 13.0 |
-| SHFirestoreService 1.3.0  | May 19, 2024  | Swift 5.0   | iOS 13.0 |
+| SHFirestoreService 1.3.1  | May 19, 2024  | Swift 5.0   | iOS 13.0 |
 
 
 ## Author
