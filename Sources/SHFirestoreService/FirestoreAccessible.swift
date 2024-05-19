@@ -16,7 +16,7 @@ public protocol FirestoreAccessible {
 }
 
 // MARK: - Helpers
-extension FirestoreAccessible {
+public extension FirestoreAccessible {
   var asCollectionRef: CollectionReference? {
     return self as? CollectionReference
   }

@@ -13,7 +13,7 @@ extension DocumentReference: FirestoreReference { }
 extension CollectionReference: FirestoreReference { }
 
 // MARK: - Helpers
-extension FirestoreReference {
+public extension FirestoreReference {
   var asCollectionRef: CollectionReference? {
     return self as? CollectionReference
   }
