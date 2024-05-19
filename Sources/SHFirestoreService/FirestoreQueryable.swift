@@ -35,8 +35,11 @@ public protocol FirestoreQueryable {
   
   /// Checks if a document is duplicated or not from the endpoint requestType is a collectionRef using firestore's query.
   ///
-  /// This method executes a Firestore query to check if the specified field in the document is duplicated from a collection reference.
-  /// The query is executed using the provided endpoint and query handler.
+  /// Notes:
+  /// 1. This method executes a Firestore query to check if the specified field in the document is duplicated from a collection reference.
+  /// 2. endpoint's a documentRef computed property of requestType property  should return nil.
+  /// 3. The query is executed using the provided endpoint and query handler.
+  /// 4. The requestType of endpoint is not used.
   ///
   /// - Parameters:
   ///   - endpoint: The Firestore endpoint to query, which must conform to `FirestoreEndopintable`.
