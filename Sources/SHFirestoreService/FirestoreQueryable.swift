@@ -32,5 +32,11 @@ public protocol FirestoreQueryable {
   where D: Decodable,
         E: FirestoreEndopintable,
         D == E.ResponseDTO
+  
+  /// Check if a document is duplicated or not from the endpoint requestType is a collectionRef using firestore's query.
+  func isFieldDuplicated(
+    endpoint: any FirestoreEndopintable,
+    from query: FirestoreQueryHandler
+  ) -> AnyPublisher<Bool, FirestoreServiceError>
 }
 #endif
