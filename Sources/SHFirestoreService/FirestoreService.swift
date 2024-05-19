@@ -371,6 +371,62 @@ extension FirestoreService: FirestoreQueryable {
         }
     }.eraseToAnyPublisher()
   }
+  
+  /// Checks if a document is duplicated or not from the endpoint requestType is a collectionRef using firestore's query.
+  ///
+  /// Notes:
+  /// 1. This method executes a Firestore query to check if the specified field in the document is duplicated from a collection reference.
+  /// 2. endpoint's a documentRef computed property of requestType property  should return nil.
+  /// 3. The query is executed using the provided endpoint and query handler.
+  /// 4. The requestType of endpoint is not used.
+  ///
+  /// - Parameters:
+  ///   - endpoint: The Firestore endpoint to query, which must conform to `FirestoreEndopintable`.
+  ///   - query: The Firestore query handler used to execute the query.
+  ///            The query should be designed to check for field duplication.
+  /// - Returns: A publisher that emits a `Bool` indicating whether the field is duplicated (`true`) or not (`false`).
+  /// - Throws: `FirestoreServiceError` if the query execution fails.
+  ///
+  /// Example:
+  /// - Does a document with test1 exist in the user's collection?
+  /// ```
+  /// let editedUserName = "test1"
+  /// let endpoint: FirestoreEndpointable = UserAPIEndpoint()
+  /// FirestoreService().isFieldDuplicated(endpoint: endpoint) { collectionReference in
+  ///   return collectionReference
+  ///     .whereField("username", isEqualTo: editedUserName)
+  /// }.receive(on: DispatchQueue.main)
+  /// .map { isFieldDuplicated in
+  ///   // TODO: - You can check whether the query has any matching documents in this downstream
+  /// }
+  /// ```
+  public func isFieldDuplicated(
+    endpoint: any FirestoreEndopintable,
+    makeQuery: @escaping FirestoreQueryHandler
+  ) -> AnyPublisher<Bool, FirestoreServiceError> {
+    return Future<Bool, FirestoreServiceError> { promise in
+      guard let collectionRef = endpoint.requestType.asCollectionRef else {
+        promise(.failure(.collectionNotFound))
+        return
+      }
+      do {
+        let query = try makeQuery(collectionRef)
+        query.getDocuments { querySnapshot, error in
+          if let error = error {
+            promise(.failure(.wrappedfirestoreError(error)))
+            return
+          }
+          if let documents = querySnapshot?.documents, !documents.isEmpty {
+            promise(.success(true))
+            return
+          }
+          promise(.success(false))
+        }
+      } catch {
+        promise(.failure(.wrappedfirestoreError(error)))
+      }
+    }.eraseToAnyPublisher()
+  }
 }
 
 // MARK: - FirestoreTransactional
