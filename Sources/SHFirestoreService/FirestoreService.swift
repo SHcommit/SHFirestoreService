@@ -440,7 +440,7 @@ extension FirestoreService: FirestoreDocumentSupportable {
   /// ```
   public func isDocumentExists(
     endpoint: any FirestoreEndopintable,
-    makeQuery: @escaping FirestoreQueryHandler
+    makeQuery: @escaping QueryHandler
   ) -> AnyPublisher<Bool, FirestoreServiceError> {
     return Future<Bool, FirestoreServiceError> { promise in
       guard let collectionRef = endpoint.requestType.asCollectionRef else {

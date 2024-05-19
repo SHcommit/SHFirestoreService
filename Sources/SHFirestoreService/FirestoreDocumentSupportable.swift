@@ -11,6 +11,7 @@ import Foundation
 #if os(iOS) && canImport(FirebaseFirestore)
 import FirebaseFirestore
 public protocol FirestoreDocumentSupportable {
+  typealias QueryHandler = (CollectionReference) throws -> Query
   
   /// When implementing the endpoint's document instance to be returned from the request Type, it is returned whether the document exists.
   func isDocumentExists(
@@ -33,7 +34,7 @@ public protocol FirestoreDocumentSupportable {
   /// - Throws: `FirestoreServiceError` if the query execution fails.
   func isDocumentExists(
     endpoint: any FirestoreEndopintable,
-    makeQuery: @escaping FirestoreQueryable.FirestoreQueryHandler
+    makeQuery: @escaping QueryHandler
   ) -> AnyPublisher<Bool, FirestoreServiceError>
 }
 #endif
