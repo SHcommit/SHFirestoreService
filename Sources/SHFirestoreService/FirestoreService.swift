@@ -443,11 +443,8 @@ extension FirestoreService: FirestoreDocumentSupportable {
     makeQuery: @escaping QueryHandler
   ) -> AnyPublisher<Bool, FirestoreServiceError> {
     return Future<Bool, FirestoreServiceError> { promise in
-      guard let collectionRef = endpoint.requestType.asCollectionRef else {
-        promise(.failure(.collectionNotFound))
-        return
-      }
       do {
+        let collectionRef = endpoint.requestType.collectionRef
         let query = try makeQuery(collectionRef)
         query.getDocuments { querySnapshot, error in
           if let error = error {
